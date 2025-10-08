@@ -252,7 +252,7 @@ export const useKanbanStore = defineStore('kanban', () => {
 		allTasksLoadedForBucket.value[bucketId] = true
 	}
 
-	async function loadBucketsForProject(projectId: IProject['id'], viewId: IProjectView['id'], params) {
+	async function loadBucketsForProject(projectId: IProject['id'], viewId: IProjectView['id'], params, labelId?: number) {
 		const cancel = setModuleLoading(setIsLoading)
 
 		// Clear everything to prevent having old buckets in the project if loading the buckets from this project takes a few moments
@@ -260,7 +260,7 @@ export const useKanbanStore = defineStore('kanban', () => {
 
 		const taskCollectionService = new TaskCollectionService()
 		try {
-			const newBuckets = await taskCollectionService.getAll({projectId, viewId}, {
+			const newBuckets = await taskCollectionService.getAll({projectId, viewId, labelId}, {
 				...params,
 				per_page: TASKS_PER_BUCKET,
 			})

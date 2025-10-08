@@ -1592,6 +1592,104 @@ func TestTaskCollection_ReadAll(t *testing.T) {
 		// TODO date magic
 	}
 
+	// Label filtering tests - these use a separate LabelID field
+	type labelTestcase struct {
+		name     string
+		labelID  int64
+		args     args
+		want     []*Task
+		wantErr  bool
+		wantCode int
+	}
+
+	labelTests := []labelTestcase{
+		{
+			name:    "filter by label ID",
+			labelID: 4,
+			args:    defaultArgs,
+			want: []*Task{
+				task1,
+				task2,
+				task35,
+			},
+			wantErr: false,
+		},
+		{
+			name:    "filter by label ID 5",
+			labelID: 5,
+			args:    defaultArgs,
+			want: []*Task{
+				task35,
+			},
+			wantErr: false,
+		},
+		{
+			name:    "filter by non-existent label",
+			labelID: 999,
+			args:    defaultArgs,
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "filter by label with no tasks",
+			labelID: 1, // label 1 exists but has no tasks assigned
+			args:    defaultArgs,
+			want:    []*Task{},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range labelTests {
+		t.Run(tt.name, func(t *testing.T) {
+			db.LoadAndAssertFixtures(t)
+			s := db.NewSession()
+			defer s.Close()
+
+			lt := &TaskCollection{
+				LabelID: tt.labelID,
+			}
+			got, _, _, err := lt.ReadAll(s, tt.args.a, tt.args.search, tt.args.page, 50)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Test %s, Task.ReadAll() error = %v, wantErr %v", tt.name, err, tt.wantErr)
+				return
+			}
+			if tt.wantErr {
+				return
+			}
+			if diff, equal := messagediff.PrettyDiff(tt.want, got); !equal {
+				var is bool
+				var gotTasks []*Task
+				gotTasks, is = got.([]*Task)
+				if !is {
+					gotTasks = []*Task{}
+				}
+				if len(gotTasks) == 0 && len(tt.want) == 0 {
+					return
+				}
+
+				gotIDs := []int64{}
+				for _, t := range got.([]*Task) {
+					gotIDs = append(gotIDs, t.ID)
+				}
+
+				wantIDs := []int64{}
+				for _, t := range tt.want {
+					wantIDs = append(wantIDs, t.ID)
+				}
+				sort.Slice(wantIDs, func(i, j int) bool {
+					return wantIDs[i] < wantIDs[j]
+				})
+				sort.Slice(gotIDs, func(i, j int) bool {
+					return gotIDs[i] < gotIDs[j]
+				})
+
+				diffIDs, _ := messagediff.PrettyDiff(wantIDs, gotIDs)
+
+				t.Errorf("Test %s, Task.ReadAll() = %v, \nwant %v, \ndiff: %v \n\n diffIDs: %v", tt.name, got, tt.want, diff, diffIDs)
+			}
+		})
+	}
+
 	// Here we're explicitly testing search with and without paradeDB. Both return different results but that's
 	// expected - paradeDB returns more results than other databases with a naive like-search.
 

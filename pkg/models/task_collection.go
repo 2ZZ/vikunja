@@ -31,6 +31,7 @@ import (
 type TaskCollection struct {
 	ProjectID     int64 `param:"project" json:"-"`
 	ProjectViewID int64 `param:"view" json:"-"`
+	LabelID       int64 `param:"label" json:"-"`
 
 	Search string `query:"s" json:"s"`
 
@@ -166,7 +167,7 @@ func getTaskOrTasksInBuckets(s *xorm.Session, a web.Auth, projects []*Project, v
 }
 
 func getRelevantProjectsFromCollection(s *xorm.Session, a web.Auth, tf *TaskCollection) (projects []*Project, err error) {
-	if tf.ProjectID == 0 || tf.isSavedFilter {
+	if tf.ProjectID == 0 || tf.isSavedFilter || tf.LabelID != 0 {
 		projects, _, _, err = getRawProjectsForUser(
 			s,
 			&projectOptions{
@@ -334,6 +335,26 @@ func (tf *TaskCollection) ReadAll(s *xorm.Session, a web.Auth, search string, pa
 			if err != nil {
 				return nil, 0, 0, err
 			}
+		}
+	}
+
+	// If filtering by label, add the label filter to the existing filters
+	if tf.LabelID != 0 {
+		// Check the label exists and the user has access to it
+		label := &Label{ID: tf.LabelID}
+		canRead, _, err := label.CanRead(s, a)
+		if err != nil {
+			return nil, 0, 0, err
+		}
+		if !canRead {
+			return nil, 0, 0, ErrGenericForbidden{}
+		}
+
+		labelFilter := "labels = " + strconv.FormatInt(tf.LabelID, 10)
+		if tf.Filter != "" {
+			tf.Filter = "(" + tf.Filter + ") && (" + labelFilter + ")"
+		} else {
+			tf.Filter = labelFilter
 		}
 	}
 

@@ -303,7 +303,10 @@ const props = defineProps<{
 	isLoadingProject: boolean,
 	projectId: IProject['id'],
 	viewId: IProjectView['id'],
+	labelId?: number,
 }>()
+
+const labelId = toRef(props, 'labelId')
 
 const ACTIVE_COLUMNS_DEFAULT = {
 	index: true,
@@ -329,7 +332,7 @@ const SORT_BY_DEFAULT: SortBy = {
 const activeColumns = useStorage('tableViewColumns', {...ACTIVE_COLUMNS_DEFAULT})
 const sortBy = useStorage<SortBy>('tableViewSortBy', {...SORT_BY_DEFAULT})
 
-const taskList = useTaskList(() => props.projectId, () => props.viewId, sortBy.value)
+const taskList = useTaskList(() => props.projectId, () => props.viewId, sortBy.value, () => 'subtasks', () => labelId.value)
 
 const {
 	loading,

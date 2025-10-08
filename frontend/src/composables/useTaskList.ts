@@ -63,10 +63,12 @@ export function useTaskList(
 	projectViewIdGetter: ComputedGetter<IProjectView['id']>,
 	sortByDefault: SortBy = SORT_BY_DEFAULT,
 	expandGetter: ComputedGetter<ExpandTaskFilterParam> = () => 'subtasks',
+	labelIdGetter?: ComputedGetter<number>,
 ) {
-	
+
 	const projectId = computed(() => projectIdGetter())
 	const projectViewId = computed(() => projectViewIdGetter())
+	const labelId = labelIdGetter ? computed(() => labelIdGetter()) : computed(() => undefined)
 
 	const params = ref<TaskFilterParams>({...getDefaultTaskFilterParams()})
 
@@ -105,6 +107,7 @@ export function useTaskList(
 			{
 				projectId: projectId.value,
 				viewId: projectViewId.value,
+				labelId: labelId.value,
 			},
 			{
 				...allParams.value,

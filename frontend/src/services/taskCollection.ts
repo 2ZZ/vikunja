@@ -34,10 +34,14 @@ export default class TaskCollectionService extends AbstractService<ITask> {
 		super({
 			getAll: '/projects/{projectId}/views/{viewId}/tasks',
 			// /projects/{projectId}/tasks when viewId is not provided
+			// /labels/{labelId}/tasks when labelId is provided
 		})
 	}
 
 	getReplacedRoute(path: string, pathparams: Record<string, unknown>): string {
+		if (pathparams.labelId) {
+			return super.getReplacedRoute('/labels/{labelId}/tasks', pathparams)
+		}
 		if (!pathparams.viewId) {
 			return super.getReplacedRoute('/projects/{projectId}/tasks', pathparams)
 		}

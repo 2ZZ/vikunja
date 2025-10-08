@@ -125,15 +125,21 @@ const props = defineProps<{
         isLoadingProject: boolean,
         projectId: IProject['id'],
         viewId: IProjectView['id'],
+        labelId?: number,
 }>()
 
 const projectId = toRef(props, 'projectId')
+const labelId = toRef(props, 'labelId')
 
 defineOptions({name: 'List'})
 
 const ctaVisible = ref(false)
 
 const drag = ref(false)
+
+// When filtering by label, we can't sort by position (requires a view ID)
+// So we fall back to sorting by ID instead
+const sortBy = computed(() => labelId.value ? {id: 'desc'} : {position: 'asc'})
 
 const {
 	tasks: allTasks,
@@ -146,10 +152,11 @@ const {
 } = useTaskList(
 	() => projectId.value,
 	() => props.viewId,
-	{position: 'asc'},
+	sortBy.value,
 	() => projectId.value === -1
 		? null
 		: 'subtasks',
+	() => labelId.value,
 )
 
 const taskPositionService = ref(new TaskPositionService())

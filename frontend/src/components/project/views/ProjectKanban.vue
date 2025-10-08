@@ -323,6 +323,7 @@ const props = defineProps<{
 	isLoadingProject: boolean,
 	projectId: number,
 	viewId: IProjectView['id'],
+	labelId?: number,
 }>()
 
 const projectId = toRef(props, 'projectId')
@@ -443,7 +444,7 @@ watch(
 			return
 		}
 		collapsedBuckets.value = getCollapsedBucketState(projectId)
-		kanbanStore.loadBucketsForProject(projectId, viewId, params)
+		kanbanStore.loadBucketsForProject(projectId, viewId, params, props.labelId)
 	},
 	{
 		immediate: true,
@@ -702,7 +703,7 @@ function handleRecurringTaskCompletion() {
 		
 	if (filterContainsDateFields) {
 		// Reload the kanban board to refresh tasks that now match/don't match the filter
-		kanbanStore.loadBucketsForProject(projectId.value, props.viewId, params.value)
+		kanbanStore.loadBucketsForProject(projectId.value, props.viewId, params.value, props.labelId)
 	}
 }
 

@@ -371,6 +371,14 @@ const router = createRouter({
 			},
 		},
 		{
+			path: '/labels/:labelId/tasks',
+			name: 'label.tasks',
+			component: () => import('@/views/labels/LabelTasksView.vue'),
+			props: route => ({
+				labelId: parseInt(route.params.labelId as string),
+			}),
+		},
+		{
 			path: '/filters/new',
 			name: 'filters.create',
 			component: () => import('@/views/filters/FilterNew.vue'),

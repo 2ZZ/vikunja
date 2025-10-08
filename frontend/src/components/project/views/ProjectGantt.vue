@@ -99,6 +99,7 @@ const props = defineProps<{
 	isLoadingProject: boolean,
 	route: RouteLocationNormalized
 	viewId: IProjectView['id']
+	labelId?: number
 }>()
 
 
@@ -106,6 +107,7 @@ const baseStore = useBaseStore()
 const canWrite = computed(() => baseStore.currentProject?.maxPermission > PERMISSIONS.READ)
 
 const {route, viewId} = toRefs(props)
+const labelId = toRef(props, 'labelId')
 const {
 	filters,
 	hasDefaultFilters,
@@ -114,7 +116,7 @@ const {
 	isLoading,
 	addTask,
 	updateTask,
-} = useGanttFilters(route, viewId)
+} = useGanttFilters(route, viewId, labelId)
 
 const DEFAULT_DATE_RANGE_DAYS = 7
 

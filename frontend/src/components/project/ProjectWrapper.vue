@@ -82,7 +82,7 @@ const currentProject = computed<IProject>(() => {
 })
 useTitle(() => currentProject.value?.id ? getProjectTitle(currentProject.value) : '')
 
-const views = computed(() => projectStore.projects[props.projectId]?.views)
+const views = computed(() => props.projectId > 0 ? projectStore.projects[props.projectId]?.views : [])
 
 function getViewTitle(view: IProjectView) {
 	switch (view.title) {
