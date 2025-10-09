@@ -72,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, ref, toRefs} from 'vue'
+import {computed, ref, toRef, toRefs} from 'vue'
 import type Flatpickr from 'flatpickr'
 import {useI18n} from 'vue-i18n'
 import type {RouteLocationNormalized} from 'vue-router'

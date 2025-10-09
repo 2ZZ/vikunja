@@ -274,7 +274,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, type Ref, watch} from 'vue'
+import {computed, toRef, type Ref, watch} from 'vue'
 
 import {useStorage} from '@vueuse/core'
 

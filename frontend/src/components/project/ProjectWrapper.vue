@@ -11,6 +11,7 @@
 		</h1>
 
 		<div
+			v-if="projectId > 0"
 			class="switch-view-container d-print-none"
 			:class="{'is-justify-content-flex-end': views.length === 1}"
 		>
